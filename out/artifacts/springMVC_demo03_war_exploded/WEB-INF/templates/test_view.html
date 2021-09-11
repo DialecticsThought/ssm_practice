@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--超链接写的绝对路径就是浏览器解析的  / 表示从localhost:8080访问 要添加一个上下文路径
+也就是配置Tomcat的application context-->
+<!--@{/testThymleafView}表示如果大括号里面是绝对路径 自动添加上下文路径-->
+<!--实现了http://localhost:8080/springMVC_demo03/testThymleafView 访问success.html-->
+<a th:href="@{/testThymeleafView}">测试ThymleafView</a>
+<br/>
+<a th:href="@{/testForward}">测试InternalResourceView</a>
+<br/>
+<a th:href="@{/testRedirect}">测试RedirectView</a>
+</body>
+</html>

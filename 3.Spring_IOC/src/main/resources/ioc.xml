@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--实验15：通过注解分别创建Dao,Service Controller
+        通过给bean添加某些注解 可以快速地将bean加入到ioc容器
+        某个类上添加任何一个注解都能快速的将这个组件加入到ioc容器的管理中
+        @Controller 控制器
+        @Service 业务逻辑层
+        @Repository dao层
+        @Component 不属于以上几层的组件添加这个注解
+
+        使用注解将组件快速地加入到容器中
+            1.要给添加的组件上标四个注解的任何一个
+            2.告诉spring 自动扫描加了注解的组件 依赖context名称空间
+            3.一定要导入aop包 支持加注解模式地
+    -->
+    <!--
+        context:component-scan:自动组件扫描
+        base-package：指定扫描的基础包 把基础包及他下面所有的包的所有加了注解的类 自动地扫进ioc容器中
+    -->
+    <!--
+    实验16 使用context:exclude-filter指定扫描包时不包含的类
+    实验17 使用context:include-filter指定扫描包时只包含的类
+    -->
+    <!--use-default-filters="false"表示不使用默认的扫描规则 不扫全部-->
+    <!--id <===> 类名首字母小写-->
+    <context:component-scan base-package="ljh" use-default-filters="true">
+        <!--type="" 排除规则
+            type="annotation"按照注解进行排除 标注了指定注解的组件不要 expression=""注解的全类名
+            type="assignable" 指定排除某个具体类 expression=""类的全类名
+            type="aspectj" 不用
+            type="custom" 自己写代码 决定哪些使用
+            type="regex" 正则表达式
+        -->
+<!--    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="assignable" expression="ljh.servlet.BookServlet"/>-->
+        <!--只扫描拿一些组件-->
+        <!--<context:include-filter type="assignable" expression="ljh.dao.BookDao"/>-->
+    </context:component-scan>
+    <!--实验18 使用@Autowireed注解实现根据类型实现自动装配-->
+    <!--
+           BookServlet中
+            @Autowired//自动装配 自动为这个属性赋值
+            private BookService bookService;
+            1.先按照类型去容器找到对象的组件 bookService = ioc.getBean(BookService.class)
+                1.找到一个 直接赋值
+                2.没找到 抛异常
+                3 找到多个相同类型的
+                    1.找到变量名作为id继续匹配：现在有两个相同类型的：bookService bookServiceExt(因为两个对象是继承关系) BookServlet中是bookService 所以选择第一个
+                        1.匹配上
+                        2.没有匹配上的话 报错 原因 把变量名作为id继续匹配 bookServiceExt2作为id找不到相关的bean
+                            BookServlet中 改为
+                                @Autowired
+                                private BookService bookServiceExt2;
+                          解决方法：在@Autowired上面添加@Qualifier("bookService")指定一个新id
+                            1.找到 装配
+                            2.找不到 报错
+
+           @Autowired标注的自动装配的属性默认是一定要装配上
+           解决方法：@Autowired(required = false)
+
+        @Autowired @Resource @Inject 都是自动装配
+        @Autowired最强大 spring自己的注解
+        @Resource j2ee java的标准
+
+        @Resource扩展性最强 没有spring也能用
+    -->
+</beans>

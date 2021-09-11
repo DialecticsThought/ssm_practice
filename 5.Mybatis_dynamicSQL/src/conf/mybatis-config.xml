@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--和spring的context propert-placholder 引入外部配置文件
+    resource适用于类路径引用
+    url适用于磁盘路径/网络路径
+    -->
+    <properties resource="dbproperties.properties"></properties>
+    <settings>
+        <!--配置项的key 配置项的值-->
+        <!--bean属性:loginAccount   column的name:login_account-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--开启延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--开启属性按需加载-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--开启全局缓存开关-->
+        <setting name="cacheEnabled" value="true"/>
+    </settings>
+    <!--类型别名 为常用的javabean起别名  别名默认就是别名（不区分大小写）-->
+    <typeAliases>
+        <!--<typeAlias type="ljh.bean.Employee" alias="Employee"/>-->
+        <!--如果给特定的bean起别名的话 在bean里面加上注解  eg:@Alias("emp")-->
+        <!--批量起别名 给指定包的所有bean都起别名  默认就是类名  <package name="ljh.bean"/>-->
+        <package name="ljh.bean"/>
+    </typeAliases>
+    <!--environments环境们 一定需要事务管理 和数据源-->
+    <!--实际当中，数据源和事务管理器都是用spring-->
+    <!--default是指默认使用哪一个环境-->
+    <environments default="development">
+<!--        <environment id="test">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>-->
+        <!--id是每个环境的唯一标识-->
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!--用于数据库移植 eg：从mysql到oracle因为sql语句不同而移植   type="DB_VENDOR"是固定的-->
+    <databaseIdProvider type="DB_VENDOR">
+        <!--name是数据库厂商表示 value是起一个好用的名字
+        -->
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL server" value="sqlserver"/>
+    </databaseIdProvider>
+    <!--引入我们自己编写的每一个接口的实现文件-->
+    <mappers>
+        <!--mapper
+        resource 在类路径下找到sql映射文件
+        class 直接引用接口的全类名
+        url 从磁盘/网络路径中找到
+        -->
+        <!--如果用class 写的是dao的类名 则EmployeeDao.xml放在dao层接口同目录下 并且配置文件名和dao层接口名一致-->
+        <!--<mapper class="ljh.dao.EmployeeDao"/>-->
+        <mapper resource="TeacherDao.xml"/>
+    </mappers>
+</configuration>

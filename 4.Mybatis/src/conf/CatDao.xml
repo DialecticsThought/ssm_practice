@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace名称空间 接口的全类名 相当于告诉mybatis这个配置文件是实现哪个接口的-->
+<mapper namespace="ljh.dao.CatDao">
+<!--  public Cat getCatById();-->
+    <!--resultType="ljh.bean.Cat"使用默认规则 属性 列名一一对应-->
+<!--<select id="getCatById" resultType="ljh.bean.Cat">
+        select id , cname name, cAge age, cGender gender from t_cat where id=#{id}
+    </select>-->
+    <!--自定义结果集 自己定义每一列数据和javaBean的映射规则
+    id 唯一标识 用来让别人引用 type 指定对哪一个javaBean自定义封装规则
+    -->
+    <resultMap id="myCat" type="ljh.bean.Cat">
+        <!--指定主键列的对应规则  column指定主键列 property指定cat的哪一属性封装id这列数据-->
+        <id column="id" property="id"/>
+        <!--普通列-->
+        <result property="name" column="cName"/>
+        <result property="age" column="cAge"/>
+        <result property="gender" column="cGender"/>
+    </resultMap>
+    <select id="getCatById" resultMap="myCat">
+        select * from t_cat where id=#{id}
+    </select>
+</mapper>

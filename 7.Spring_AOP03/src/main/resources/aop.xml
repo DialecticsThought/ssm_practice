@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+       ">
+    <context:component-scan base-package="ljh"></context:component-scan>
+
+
+    <!--
+        基于注解的aop步骤
+        1.将目标类和切面类加入到ioc容器中
+        2.告诉Spring那一个是切面类 @Aspect
+        3.在切面类中使用五个通知注解来在配置切面中的这些通知方法何时何地运行
+        4.开启给予直接的aop功能
+
+        注解：快速方便
+        配置：功能完善
+        重要的用配置
+        不重要的用注解
+    -->
+    <!--基于配置的aop-->
+    <bean id="myCalculator" class="ljh.impl.MyCalculator"></bean>
+    <bean class="ljh.utils.LogUtils" id="logUtils"></bean>
+    <bean class="ljh.utils.ValidateAspect" id="validateAspect"></bean>
+
+    <!--开启基于注解的AOP模式 需要AOP名称空间-->
+    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+    <!--切面类中使用五个通知注解来在配置切面中的这些通知方法何时何地运行-->
+    <aop:config>
+
+        <aop:pointcut id="globalpoint" expression="execution(public int ljh..*(int,int))"/>
+        <!--指定切面  告诉Spring那一个是切面类 @Aspect-->
+        <!--@Order的话就是aop:aspect的order-->
+        <!--每个aop:aspect 只能用于一个类-->
+        <aop:aspect ref="logUtils" order="2">
+            <!--抽取可重用的切入点表达式-->
+            <aop:pointcut id="mypoint" expression="execution(public int ljh..*(int,int))"/>
+            <!--配置哪个方法是前置通知 method指定方法名 -->
+            <!-- aop:before相当于@Before pointcut写的是切入点表达式-->
+            <aop:before method="logStart" pointcut="execution(* ljh.*.*(..))"></aop:before>
+            <!--@AfterReturning(value = "pointCut()",returning ="result")-->
+            <aop:after-returning method="logEnd" pointcut-ref="mypoint" returning="result"></aop:after-returning>
+            <!--@AfterThrowing(value = "execution(public int ljh..*(int,int))",throwing ="e")-->
+            <aop:after-throwing method="logException" pointcut-ref="mypoint" throwing="e"></aop:after-throwing>
+            <!--@After("execution(public int ljh.impl..*(int,int))")-->
+            <aop:after method="logFinal" pointcut-ref="mypoint"></aop:after>
+            <aop:around method="myAround" pointcut-ref="globalpoint"></aop:around>
+        </aop:aspect>
+        <aop:aspect ref="validateAspect" order="1">
+            <aop:before method="logStart" pointcut-ref="globalpoint"></aop:before>
+            <!--@AfterReturning(value = "pointCut()",returning ="result")-->
+            <aop:after-returning method="logReturn" pointcut-ref="mypoint" returning="result"></aop:after-returning>
+            <!--@AfterThrowing(value = "execution(public int ljh..*(int,int))",throwing ="e")-->
+            <aop:after-throwing method="logException" pointcut-ref="mypoint" throwing="e"></aop:after-throwing>
+            <!--@After("execution(public int ljh.impl..*(int,int))")-->
+            <aop:after method="logFinal" pointcut-ref="mypoint"></aop:after>
+        </aop:aspect>
+
+    </aop:config>
+</beans>

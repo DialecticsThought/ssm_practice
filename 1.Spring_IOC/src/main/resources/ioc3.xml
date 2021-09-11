@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--原来按照配置的顺序创建bean-->
+    <!--改变创建bean的顺序-->
+    <!--实验8：depends-onbean之间的依赖（改变创建顺序）-->
+    <bean id="book" class="ljh.bean.Book"  depends-on="person,car"></bean>
+    <bean id="person" class="ljh.bean.Person"></bean>
+    <bean id="car" class="ljh.bean.Car"></bean>
+
+
+    <!-- 实验9：测试bean的作用域 分别创建单实例和多实例的bean★★★★★★
+        bean的作用于：指定bean是否单例 默认：单例
+        prototype多实例
+            容器启动默认不多实例创建对象
+            获取的时候再创建bean对象
+            每次获取都会创建新的对象
+        singleton单实例 默认
+            在容器启动前就创建完对象了 保存在容器中
+            任何获取都是获取之前创建好的对象
+    -->
+    <bean id="car01" class="ljh.bean.Car" scope="prototype"></bean>
+
+    <!--实验5：配置哦通过静态工厂创建的bean 实例工厂方法创建的bean factoryBean-->
+    <!--bean的创建默认就是框架利用反射new出来的bean实例-->
+    <!--
+        工厂模式：工厂帮我们创建对象 有一个专门帮我们创建对象的类 这个类就是工厂
+       AirPlane ap =  AirPlaneFactory.getAirPlane(String captain)
+       静态工厂： 工厂本身不用创建对象 通过静态方法是用 对象 = 工厂类.工厂方法名（）
+       实例工厂： 工厂本身需要创建对象
+            工厂类 工厂类对象 = new 工厂类()
+            工厂对象。getAirPlane("aaa")
+    -->
+    <bean id="airPlane01" class="ljh.bean.AirPlane">
+        <property name="captain" value="aaa"></property>
+    </bean>
+
+    <!--1.静态工厂（不需要创建工厂的本身）
+    class
+    指定静态工厂的全类名
+    factory-method指定工厂方法
+    constructor-arg为工厂方法传参
+    -->
+    <bean id="airPlane02" class="ljh.factory.AirPlaneStaticFactory" factory-method="getAirPlane">
+        <!--可以为方法传递参数-->
+        <constructor-arg name="captain" value="aaa"></constructor-arg>
+    </bean>
+
+    <!--2.实力工厂使用
+        factory-method指定工厂方法
+    -->
+    <bean id="airPlaneIntanceFactory" class="ljh.factory.AirPlaneIntanceFactory" >
+    </bean>
+    <!--指定当前对象创建使用哪一个工厂
+        1.先配置出实例工厂对象
+        2.配置我们要创建的AirPlane使用哪一个工厂创建
+            1.factory-bean：指定使用哪一个工厂实例
+            2.factory-method：使用哪一个工厂方法
+    -->
+    <!--不是利用反射而是利用工厂的方法创建这个bean对象-->
+    <bean id="airplane02" class="ljh.bean.AirPlane" factory-bean="airPlaneIntanceFactory" factory-method="getAirPlane">
+        <constructor-arg name="captain" value="bbb"></constructor-arg>
+    </bean>
+
+    <!--factoryBean（spring的一个接口）只要是这个接口的实现类 spring就认为是工厂
+           1.ioc启动的时候不会创建实例不管是单例还是多例★★★★★★★
+           2.在获取的时候才创建对象
+        -->
+    <!--返回的是图书-->
+    <bean id="myFactoryBeanImpl" class="ljh.factory.MyFactoryBeanImpl"></bean>
+</beans>

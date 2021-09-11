@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace名称空间 接口的全类名 相当于告诉mybatis这个配置文件是实现哪个接口的-->
+<mapper namespace="ljh.dao.EmployeeDao">
+    <!--
+    //按照员工id查询员工
+    public Employee getEmpById(Integer id);
+    //更新员工要带员工字段 直接传入对象
+    public int updateEmployee(Employee employee);
+
+    public int deleteEmployee(Integer id);
+
+    public int insertEmployee(Employee employee);-->
+
+    <!--定义一个查询操作 id方法名 相当于配置是对于某个方法的实现
+    参数类型不用写
+    resultType方法的返回值类型 查询操作必须指定
+    #{属性名}取出传递过来的某个参数的值-->
+    <!--sql语句不要写分号-->
+    <!--
+    增删改不用写返回值类型
+    增删改返回的影响多少行
+    mybatis自动判断（int，long）
+    如果是boolean 影响0行自动封装false 否则为true
+    -->
+    <!--#{属性名} 从传入的参数对象取出相应的属性值-->
+    <!--<typeAlias type="ljh.bean.Employee" alias="emp"/>-->
+    <!--批量起别名 给指定包的所有bean都起别名  默认就是类名   <package name="ljh.bean"/>-->
+    <!--如果给特定的bean起别名的话 在bean里面加上注解  eg:@Alias("emp")-->
+    <!--resultType="emp"与 alias的属性值相对应-->
+    <select id="getEmpById" resultType="emp">
+        select * from t_employee where id = #{id}
+    </select>
+    <!-- databaseId="mysql"指定该语句在mysql下执行-->
+    <select id="getEmpById" resultType="emp"  databaseId="mysql">
+        select * from t_employee where id = #{id}
+    </select>
+    <!-- databaseId="mysql"指定该语句在oracle下执行-->
+    <select id="getEmpById" resultType="emp"  databaseId="oracle">
+        select * from t_employee where id = #{id}
+    </select>
+    <!--public int updateEmployee(Employee employee);-->
+    <update id="updateEmployee" >
+        update t_employee
+            set empname =#{empname}, gender=#{gender},email=#{email}
+            where id=#{id}
+    </update>
+    <!--public boolean deleteEmployee(Integer id);-->
+    <delete id="deleteEmployee" >
+        delete from t_employee where id=#{id}
+    </delete>
+    <!--public int insertEmployee(Employee employee);-->
+    <insert id="insertEmployee">
+        insert into t_employee(empname,gender,email) value (#{empname},#{gender},#{email})
+    </insert>
+</mapper>

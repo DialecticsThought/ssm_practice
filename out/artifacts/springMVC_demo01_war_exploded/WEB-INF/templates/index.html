@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>hello world</h1>
+<!--超链接写的绝对路径就是浏览器解析的  / 表示从localhost:8080访问 要添加一个上下文路径
+也就是配置Tomcat的application context-->
+<!--@{/target}表示如果大括号里面是绝对路径 自动添加上下文路径-->
+<a th:href="@{/target}">访问目标页面</a>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--扫描组件-->
+    <context:component-scan base-package="liu"></context:component-scan>
+    <!-- 配置Thymeleaf视图解析器 -->
+    <bean id="viewResolver" class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
+        <property name="order" value="1"/>
+        <property name="characterEncoding" value="UTF-8"/>
+        <property name="templateEngine">
+            <bean class="org.thymeleaf.spring5.SpringTemplateEngine">
+                <property name="templateResolver">
+                    <bean class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
+                        <!-- 视图前缀 -->
+                        <property name="prefix" value="/WEB-INF/templates/"/>
+                        <!-- 视图后缀 -->
+                        <property name="suffix" value=".html"/>
+                        <property name="templateMode" value="HTML5"/>
+                        <property name="characterEncoding" value="UTF-8" />
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <!--使用了该标签所有的请求映射全部失效-->
+
+
+    <!--开放对静态资源的访问  静态资源先被前端控制器处理 前端控制器找不到相应的请求映射 交给defaultServlet
+    能找到静态资源就找到了 找不到就是404-->
+    <!--
+        tomcat服务器有个默认的web.xml范围是整个tomcat 每个工程项目有个web.xml 范围是整个工程项目
+        tomcat的web.xml有个
+        <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/</url-pattern>
+        </servlet-mapping>
+        会和自己定义的dispatcherServlet起冲突 并失效
+        dispatcherServlet会根据地址取控制器找到相应的请求映射 但是控制器没有写静态资源的相应的请求映射
+    -->
+    <mvc:default-servlet-handler/>
+    <!--开启mvc注解驱动-->
+    <mvc:annotation-driven/>
+
+    <!--配置文件上传解析器 将上传的文件封装为MultipartFile-->
+    <!--IOC容器自动访问这个bean对象 不创建的话 无法把上传的数据封装成MultipartFile-->
+    <!--    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        </bean>-->
+</beans>

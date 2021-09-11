@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>hello world</h1>
+<!--超链接写的绝对路径就是浏览器解析的  / 表示从localhost:8080访问 要添加一个上下文路径
+也就是配置Tomcat的application context-->
+<!--@{/hello/success}表示如果大括号里面是绝对路径 自动添加上下文路径-->
+<a th:href="@{/hello/success}">测试RequestMapping注解的位置----success</a><br/>
+<a th:href="@{/hello/test}">测试RequestMapping注解的位置---test</a>
+<form th:action="@{/hello/success1}" method="post">
+    <input type="submit" value="测试requestMapping注解的method属性--->post">
+</form>
+<a th:href="@{/hello/success1}">测试GetMapping注解</a>
+</body>
+<form th:action="@{/hello/testPut}" method="post">
+    <input type="hidden" name="_method" value="put">
+    <input type="submit" value="用put发送请求">
+</form>
+<br/>
+<a th:href="@{/hello/testParamsAndHeaders(username='admin')}">测试RequestMapping注解的params上属性</a>
+<br/>
+<a th:href="@{/hello/a2a/testAnt}">测试RequestMapping注解的匹配ant风格的路径--使用？</a>
+<br/>
+<a th:href="@{/hello/abbbbba/testAnt1}">测试RequestMapping注解的匹配ant风格的路径--使用*</a>
+<br/>
+<a th:href="@{/hello/aaaa/testAnt2}">测试RequestMapping注解的匹配ant风格的路径--使用**</a>
+<br/>
+<a th:href="@{/hello/testPath/1}">测试RequestMapping注解的匹配restful风格的路径</a>
+
+
+</html>

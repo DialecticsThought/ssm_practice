@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace名称空间 接口的全类名 相当于告诉mybatis这个配置文件是实现哪个接口的-->
+<mapper namespace="ljh.dao.KeyDao">
+<!--public Key getKeyById(Integer id);-->
+    <!--    private int id;//钥匙的编号
+    private String keyName;//钥匙的名字
+    private Lock lock;//当前这把钥匙能开哪一个锁-->
+    <!--id keyname lockid lid lockname-->
+    <!--1 , 1号钥匙 , 1 , 1 , 1号锁-->
+    <select id="getKeyById"
+    resultMap="key">
+        <!--给表起别名 on写的是链接条件 where写的是查询条件-->
+        select k.id kid,k.keyName keyname,k.lockid,l.id lid,l.lockName
+        from t_key k
+        left join t_lock l on k.lockid=l.id
+        where k.id=#{id}
+    </select>
+    <!--自定义封装规则 使用级联属性封装联合查询的结果-->
+<!--    <resultMap id="key" type="ljh.bean.Key">
+        <id property="id" column="id"/>
+        <result property="keyName" column="keyname"/>
+        <result property="lock.id" column="id"/>
+        <result property="lock.lockName" column="lockName"/>
+    </resultMap>-->
+    <!--使用mybatis推荐的<association property=""></association>-->
+    <resultMap id="key" type="ljh.bean.Key">
+        <!--这个id标签是ljh.bean.Key-->
+        <id property="id" column="id"/>
+        <result property="keyName" column="keyname"/>
+        <!--接下来的属性是一个对象 自定义这个对象的封装规则 通过association标签 表示联合了一个对象-->
+        <!--property写lock属性时因为要key对象的属性是这个并封装lock  javaType=""指定这个属性(也就是对象)的类型-->
+        <association property="lock" javaType="ljh.bean.Lock">
+            <!--定义lock属性对应的这个lock对象如何封装-->
+            <!--这个id标签是针对ljh.bean.Lock  column="lid"因为起了别名-->
+            <id property="id" column="lid"/>
+            <result property="lockName" column="lockName"/>
+        </association>
+    </resultMap>
+
+    <!--public Lock getKeyByIdInSimpleWay(Integer id);-->
+    <!--查询key的时候也可以带上锁的信息 ☆☆☆☆☆-->
+    <!--不用 resultType因为只能查出三列-->
+    <!--<select id="getKeyByIdInSimpleWay" resultType="ljh.bean.Key">-->
+    <select id="getKeyByIdInSimpleWay" resultMap="key02">
+        select * from t_key where id = #{id}
+    </select>
+    <resultMap id="key02" type="ljh.bean.Key">
+        <!--    private int id;//钥匙的编号
+                private String keyName;//钥匙的名字
+                private Lock lock;//当前这把钥匙能开哪一个锁
+        -->
+        <id property="id" column="id"/>
+        <result property="keyName" column="keyName"/>
+        <!--因为是简单的查询所有没有查询锁 但是可以告诉mybatis让他自己去查
+        没有用javaType是因为没有查出锁 没有那些列
+        select="" 指定一个查询sql的唯一标识 mybatis自动调用指定的sql将查出的lock封装进来
+        但是getLockByIdInSimpleWay这个方法需要传入锁的id  ==>告诉mybatis把哪一列的值传进去 通过column属性
+        也就是getKeyByIdInSimpleWay查到锁的id也就是lockid列 并传入getLockByIdInSimpleWay
+        -->
+        <association property="lock"  select="ljh.dao.LockDao.getLockByIdInSimpleWay" column="lockid" >
+        </association>
+    </resultMap>
+
+    <!--public List<Key> getKeyByLockId(Integer id); 根据锁的id查出所有钥匙-->
+    <select id="getKeyByLockId" resultType="ljh.bean.Lock">
+        select * from t_key where lockid = #{id}
+    </select>
+</mapper>

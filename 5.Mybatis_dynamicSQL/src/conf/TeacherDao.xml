@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+OGNL表达式：对象导航图
+    Person
+        ===lastName
+        ===email
+        ===address
+            ===city
+            ===province
+            ===street
+    上面就是一个导航图
+    可以 访问对象属性
+        调用方法
+        调用静态属性/方法
+        调用构造方法
+        调用逻辑运算符（注意特殊字符的转义）
+        调用运算符（注意特殊字符的转义）
+        访问集合的伪属性
+
+        在mybatis中 传入的参数可以判断
+        还有_parameter: 代表传入的参数
+                            传入了单个参数 _parameter就代表那个参数
+                            传入多个参数 _parameter就代表多个参数集合起来的map
+           _databaseId：代表当前环境 如果配置了databaseIdProvider 就有这个属性
+                    eg: <if test="_databaseId=='mysql'"> 表示当前环境是mysql的话 则执行
+                            .....
+                        </if>
+-->
+
+<!--namespace名称空间 接口的全类名 相当于告诉mybatis这个配置文件是实现哪个接口的-->
+<mapper namespace="ljh.dao.TeacherDao">
+    <!--使用二级缓存-->
+    <cache></cache>
+
+<!--public Teacher getTeacherById(Integer id);-->
+    <select id="getTeacherById" resultMap="teacherMap">
+        select * from t_teacher where id = #{id}
+    </select>
+    <resultMap id="teacherMap" type="ljh.bean.Teacher">
+        <!--
+            private Integer id;
+            private String name;
+            private String course;
+            private String address;
+            private Date birth;
+        -->
+        <id property="id" column="id"/>
+        <result property="name" column="teacherName"/>
+        <result property="course" column="subject_name"/>
+        <result property="birth" column="birth_date"/>
+        <result property="address" column="address"/>
+    </resultMap>
+
+    <!-- public List<Teacher> getTeacherByCondition(Teacher teacher);-->
+    <!--if的局限性 只要有一个变量不传入 就会多出 and 解决方法 用 where-->
+<!--    <select id="getTeacherByCondition" resultMap="teacherMap">
+        &lt;!&ndash;传一个对象 有什么属性就用这个属性查出该老师的所有信息&ndash;&gt;
+        select * from t_teacher where
+        &lt;!&ndash;test=""编写判断条件&ndash;&gt;
+        &lt;!&ndash;id != null 表示取出传入的javabean属性的id的值 判断id是否为空&ndash;&gt;
+        <if test="id != null">
+            id > #{id} and
+        </if>
+        &lt;!&ndash;name是teacher类的属性 teacherName是字段
+        &amp;&amp;是&&的转义字符  &quot;是双引号的转义字符 &ndash;&gt;
+        <if test="name != null &amp;&amp; !name.equals(&quot;&quot;) ">
+            teacherName like #{name} and
+        </if>
+        <if test="birth != null">
+            &lt;!&ndash;birth_date < #{birth}  &lt;是转义字符&ndash;&gt;
+            birth_date &lt; #{birth}
+        </if>
+    </select>-->
+
+    <!--<select id="getTeacherByCondition" resultMap="teacherMap">-->
+        <!--传一个对象 有什么属性就用这个属性查出该老师的所有信息-->
+        <!--select * from t_teacher-->
+        <!--where只能取出前面的and 不能取出后面的and-->
+        <!--<where>-->
+            <!--test=""编写判断条件-->
+            <!--id != null 表示取出传入的javabean属性的id的值 判断id是否为空-->
+<!--            <if test="id != null">
+                id > #{id}
+            </if>-->
+            <!--name是teacher类的属性 teacherName是字段
+            &amp;&amp;是&&的转义字符  &quot;是双引号的转义字符 -->
+<!--            <if test="name != null &amp;&amp; !name.equals(&quot;&quot;) ">
+                and teacherName like #{name}
+            </if>
+            <if test="birth != null">-->
+                <!--birth_date < #{birth}  &lt;是转义字符-->
+<!--                and birth_date &lt; #{birth}
+            </if>-->
+        <!--</where>-->
+    <!--</select>-->
+
+    <!--抽取可重用的sql语句-->
+    <sql id="select_teacher">select * from t_teacher</sql>
+
+
+
+    <select id="getTeacherByCondition" resultMap="teacherMap">
+        <!--传一个对象 有什么属性就用这个属性查出该老师的所有信息-->
+        <!--select * from t_teacher-->
+        <include refid="select_teacher"></include>
+        <!--trim截取字符串
+            prefix 前缀 为下面所有的sql添加一个前缀
+            如果手写的话 下面的条件都不满足没执行的话就会留一个where
+            prefix="where"表示如果后面test条件满足则出现where
+            prefixOverrides=""去除整体字符串前面多余的字符
+            suffix=""为整体添加一个后缀
+            suffixOverrides=""  suffixOverrides="and" 取出整体字符串后面多余的字符 后面and有多余就去除
+            -->
+        <trim prefix="where" suffixOverrides="and">
+            <!--test=""编写判断条件-->
+            <!--id != null 表示取出传入的javabean属性的id的值 判断id是否为空-->
+            <if test="id != null">
+                id > #{id} and
+            </if>
+            <!--name是teacher类的属性 teacherName是字段
+            &amp;&amp;是&&的转义字符  &quot;是双引号的转义字符 -->
+            <!--绑定一个表达式的值到一个变量-->
+            <!--<bind name="_name" value="'%'+name+'%'"/>-->
+            <if test="name != null &amp;&amp; !name.equals(&quot;&quot;) ">
+                 <!--teacherName like #{_name} and-->
+                teacherName like #{name} and
+            </if>
+            <if test="birth != null">
+                <!--birth_date < #{birth}  &lt;是转义字符-->
+                 birth_date &lt; #{birth} and
+            </if>
+        </trim>
+    </select>
+
+    <!--public  List<Teacher> getTeacherByIdList(@Param("idList")List<Integer> idList);-->
+    <select id="getTeacherByIdList" resultMap="teacherMap">
+        <!--SELECT * FROM t_teacher where id in (1,2,3)   (1,2,3)是需要遍历的-->
+        <!--collection=""指定要遍历的集合的key  因为Dao层方法的形参@Param("idList")
+            item=“” 每遍历一个元素给他起个变量名 方便取出值
+            seperator 每次遍历的元素的分割符
+            open="" 以什么为开始
+            close="" 以什么结束
+            index="i" 索引 如果遍历的是一个list index 变量保存了当前的索引
+                         如果遍历的是一个map  index 变量保存了当前的key
+                                           item  就是保存当前遍历的元素的值
+
+            为了写出(#{id_item},#{id_item},#{id_item})☆☆☆☆☆☆
+        -->
+            select * from t_teacher where id in
+        <foreach collection="idList" item="id_item" separator="," open="(" close=")">
+            #{id_item}
+        </foreach>
+    </select>
+
+    <!--public List<Teacher> getTeacherByConditionChoose(Teacher teacher);-->
+    <!--<if>是指只要满足条件 都可以执行 choose是指 只执行一个分支相当于switch case  <otherwise>相当于defualt-->
+    <select id="getTeacherByConditionChoose" resultMap="teacherMap">
+        <!--select * from t_teacher-->
+        <include refid="select_teacher"></include>
+        <where>
+            <choose>
+                <!--tes写的是属性名 不是烈面-->
+                <when test="id != null">
+                    id = #{id}
+                </when>
+                <when test="name !=null and !name.equals(&quot;&quot;)">
+                    teacherName = #{name}
+                </when>
+                <when test=" birth != null">
+                    birth_date = #{birth}
+                </when>
+                <otherwise>
+                    1=1
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+    <!--public int updateTeacher(Teacher teacher);-->
+    <!--所有需要的字段值是封装在teacher对象里面的-->
+    <update id="updateTeacher">
+        <!--判断传入的值不为空 再update-->
+        UPDATE t_teacher
+            <!--<set>就是替代了普通set 比如说name course address都传值了 但是birth没传 最后的sql语句
+                变成了UPDATE t_teacher set teacherName=?,subject_name=?,address=?, where id=? 多了个逗号
+            -->
+        <set>
+            <if test="name != null and !name.equals(&quot;&quot;)">
+                teacherName=#{name},
+            </if>
+            <if test="course != null and !course.equals(&quot;&quot;)">
+                subject_name=#{course},
+            </if>
+            <if test="address != null and !address.equals(&quot;&quot;)">
+                address=#{address},
+            </if>
+            <if test="birth != null">
+                birth_date = #{birth}
+            </if>
+        </set>
+        <where>
+            <!--id是从对象那里得到的-->
+            id = #{id}
+        </where>
+    </update>
+
+</mapper>

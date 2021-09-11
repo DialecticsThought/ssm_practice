@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace名称空间 接口的全类名 相当于告诉mybatis这个配置文件是实现哪个接口的-->
+<mapper namespace="ljh.dao.EmployeeDao">
+    <!--
+    能写的标签
+    cache
+    cache-ref
+    delete updat select insert
+    parameterType 传入参数 已废弃
+    resultType 结果映射 自定义结果集的封装规则
+    sql:抽取可重用的sql
+    databaseId 指定crud用于哪一个数据库
+    -->
+    <!--
+    //按照员工id查询员工
+    public Employee getEmpById(Integer id);
+    //更新员工要带员工字段 直接传入对象
+    public int updateEmployee(Employee employee);
+
+    public int deleteEmployee(Integer id);
+
+    public int insertEmployee(Employee employee);-->
+
+    <!--定义一个查询操作 id方法名 相当于配置是对于某个方法的实现
+    参数类型不用写
+    resultType方法的返回值类型 查询操作必须指定
+    #{属性名}取出传递过来的某个参数的值-->
+    <!--sql语句不要写分号-->
+    <!--
+    增删改不用写返回值类型
+    增删改返回的影响多少行
+    mybatis自动判断（int，long）
+    如果是boolean 影响0行自动封装false 否则为true
+    -->
+    <!--#{属性名} 从传入的参数对象取出相应的属性值-->
+    <!--<typeAlias type="ljh.bean.Employee" alias="emp"/>-->
+    <!--批量起别名 给指定包的所有bean都起别名  默认就是类名   <package name="ljh.bean"/>-->
+    <!--如果给特定的bean起别名的话 在bean里面加上注解  eg:@Alias("emp")-->
+    <!--resultType="emp"与 alias的属性值相对应-->
+    <select id="getEmpById" resultType="emp">
+        select * from t_employee where id = #{id}
+    </select>
+    <!-- databaseId="mysql"指定该语句在mysql下执行-->
+    <select id="getEmpById" resultType="emp"  databaseId="mysql">
+        select * from t_employee where id = #{id}
+    </select>
+    <!-- databaseId="mysql"指定该语句在oracle下执行-->
+    <select id="getEmpById" resultType="emp"  databaseId="oracle">
+        select * from t_employee where id = #{id}
+    </select>
+    <!--public int updateEmployee(Employee employee);-->
+    <update id="updateEmployee" >
+        update t_employee
+            set empname =#{empname}, gender=#{gender},email=#{email}
+            where id=#{id}
+    </update>
+    <!--public boolean deleteEmployee(Integer id);-->
+    <delete id="deleteEmployee" >
+        delete from t_employee where id=#{id}
+    </delete>
+
+    <!--public int insertEmployee(Employee employee);-->
+    <!--让mybatis自动地将自增id赋值给传入的employee
+     useGeneratedKeys="true" 还是要用原声jdbc获取自增主键的方法
+     keyProperty="id"  把自增的id封装给bean对象的哪一个属性-->
+    <insert id="insertEmployee" useGeneratedKeys="true" keyProperty="id">
+        <!--查询主键 针对不能查询自增的数据库-->
+        <!--order="BEFORE"表示 select在insert语句之前运行  并将查到的id复制给bean对象的id属性-->
+        <selectKey order="BEFORE" keyProperty="id">
+            select  max(id)+1 from t_employee
+        </selectKey>
+        insert into t_employee(empname,gender,email) value (#{empname},#{gender},#{email})
+    </insert>
+
+    <insert id="insertEmployee2" useGeneratedKeys="true"  keyProperty="id">
+    <!--查询主键 针对不能查询自增的数据库-->
+    <!--order="BEFORE"表示 select在insert语句之前运行  并将查到的id复制给bean对象的id属性-->
+    <!--把查到的id最大值+1当做新数据的id值-->
+    <!--指定查到的id是integer类型 并赋值到id属性-->
+    <selectKey order="BEFORE" resultType="integer" keyProperty="id">
+        select  max(id)+1 from t_employee
+    </selectKey>
+        insert into t_employee(id,empname,gender,email) value (#{id},#{empname},#{gender},#{email})
+    </insert>
+
+
+    <!--
+    单个参数：
+        基本类型：#{} 括号里面变量名随便写
+        传入POJO：
+    多个参数
+        #{}括号里面 写索引eg：0,1,2,3... 或者param1 param2 param3 <=>#{key}
+        只要传入多个参数 mybatis会把这些参数封装在map里面 key就是参数的索引和参数的第几个标识
+
+        可以告诉mybatis封装参数的时候 使用自己指定的key 在dao层方法的参数前添加@Param
+        并称之为命名参数
+    传入map
+        将多个要用的参数封装起来
+           eg:  HashMap<String, Object> map = new HashMap<>();
+                map.put("id",1);
+                map.put("empname","admin");
+    传入POJO(JavaBean)
+        取值：#{POJO的属性名}
+
+    多个参数：自动封装成map
+    method01（@Param（"id"）Integer id,String empName,Employee employee);
+    Integer id ->#{id}
+    String empName->#{param2}
+    Employee employee（取出里面的email）->#{param3.email}
+
+    #{key}求职的时候可以设置一些规则
+    id=#{id,jdbcType=INTEGER}
+    jdbcTypes是用的最多的
+    默认不指定jdbcType是没有问题的 mysql没问题 oracle没问题
+    万一传入的数据是null
+    mysql插入null没有问题 oracle不知道null是什么类型
+
+    实际上在mybatis 两种取值方式
+    #{} 参数预编译的方式 参数的位置都是用 ？替代 参数都来是预编译设置进入 不会有sql注入
+    ${} 直接和sql拼串 不参加预编译 不安全
+    sql语句只有参数的位置是支持预编译的
+    eg：想要让表名是动态取出的 可以用上${}  eg: select * from ${tableName} where id=#{id} and empname =#{empname}
+
+    select * from t_employee where id=${id} and empname =#{empname}
+    select * from t_employee where id= 1 and empname = ?
+
+    -->
+    <!--public Employee getEmpByIdAndEmpName(@Param("id") Integer id,@Param("empname") String empname);-->
+<!--    <select id="getEmpByIdAndEmpName" resultType="ljh.bean.Employee">
+        &lt;!&ndash;select * from t_employee where id=#{param1} and empname =#{param2}&ndash;&gt;
+        select * from t_employee where id=#{id} and empname =#{empname}
+    </select>-->
+
+    <select id="getEmpByIdAndEmpName" resultType="ljh.bean.Employee">
+        <!--select * from t_employee where id=#{param1} and empname =#{param2}-->
+        select * from t_employee where id=#{id} and empname =${empname}
+    </select>
+
+<!--    &lt;!&ndash;public Employee getEmpByIdAndEmpName(Integer id,String empname);&ndash;&gt;
+    <select id="getEmpMAPByIdAndEmpName" resultType="ljh.bean.Employee">
+        &lt;!&ndash;public Employee getEmpByIdAndEmpName(Map<String,Object> map);&ndash;&gt;
+        select * from t_employee where id=#{id} and empname =#{empname}
+    </select>-->
+    <select id="getEmpMAPByIdAndEmpName" resultType="ljh.bean.Employee">
+        <!--public Employee getEmpByIdAndEmpName(Map<String,Object> map);-->
+        select * from ${tableName} where id=#{id} and empname =#{empname}
+    </select>
+    <!--public List<Employee> getAllEmps();-->
+    <!--返回的是集合 写的是集合里面元素的类型-->
+    <select id="getAllEmps" resultType="ljh.bean.Employee">
+        select * from t_employee
+    </select>
+
+    <!--public Map<String,Object>getEmpByIdReturnMap(Integer id); 让id作为key 其他的字段值作为value-->
+    <!--resultType="map"是mybatis内置的-->
+    <select id="getEmpByIdReturnMap" resultType="map">
+        select * from t_employee where id=#{id}
+    </select>
+
+    <!--不同于上一个只封装一条记录 如果是多条记录 就要在携程集合里面的类型-->
+    <!--public Map<Integer,Employee>getAllEmpReturnMap(); @MapKey("id")//把查询的记录的id作为key封装这个map-->
+    <select id="getAllEmpReturnMap" resultType="ljh.bean.Employee">
+        select * from t_employee
+    </select>
+</mapper>

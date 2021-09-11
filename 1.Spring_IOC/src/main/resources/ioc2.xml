@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+        <!--实验4：正确的为各种属性赋值
+            测试使用null值
+            引用类型赋值（引用其他bean 应用内部bean）
+            集合类型赋值（list，map properties）
+                util名称空间创建集合类型的bean
+            级联属性赋值
+        -->
+    <!--复杂的赋值在property标签体里面赋值-->
+    <bean id="car01" class="ljh.bean.Car">
+        <property name="carName" value="baoma"></property>
+        <property name="color" value="black"></property>
+        <property name="price" value="30000"></property>
+    </bean>
+    <bean id="person01" class="ljh.bean.Person">
+        <property name="lastName">
+            <!--进行复杂地赋值-->
+            <null></null>
+        </property>
+        <!--<ref>:代表引用外面一个值 car = ioc.getBean("car01",Person.class)  引用其他bean-->
+        <property name="car" ref="car01"></property>
+    </bean>
+
+    <bean id="person02" class="ljh.bean.Person">
+        <property name="lastName">
+            <!--进行复杂地赋值-->
+            <null></null>
+        </property>
+        <!--<ref>:代表引用外面一个值 car = ioc.getBean("car01",Person.class)  引用其他bean-->
+        <!--<property name="car" ref="car01"></property>-->
+        <property name="car">
+            <!--使用bean标签创建 car = new car()  应用内部bean-->
+            <!--内部bean id没有用 不能被获取到-->
+            <bean id="car02" class="ljh.bean.Car">
+                <property name="carName" value="toyota"></property>
+                <property name="price" value="20000"></property>
+                <property name="color" value="red"></property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="book01" class="ljh.bean.Book" >
+        <property name="bookName" value="三体"></property>
+    </bean>
+    <bean id="person03" class="ljh.bean.Person">
+        <!--如何为list赋值-->
+        <property name="books">
+            <!--<list>标签 <===> book = new ArrayList()-->
+            <list>
+                <!--list标签体中添加每一个元素-->
+                <bean class="ljh.bean.Book" p:bookName="西游记"></bean>
+                <!--引用一个外部元素-->
+                <ref bean="book01"/>
+            </list>
+        </property>
+        <!--private Map<String,Object> maps;-->
+        <property name="maps">
+            <!--<map>标签 <===> maps = new LinkedHashMap()-->
+            <map>
+                <!--<entry>代表一个KV-->
+                <entry key="key01" value="key01"></entry>
+                <entry key="key02" value="18"></entry>
+                <!--value-ref引用外部bean-->
+                <entry key="key03" value-ref="book01"></entry>
+                <!--引用内部bean-->
+                <entry key="key04">
+                    <!--内部bean不用写id-->
+                    <bean class="ljh.bean.Car">
+                        <property name="carName" value="honda"></property>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+        <!--private Properties properties;-->
+        <property name="properties">
+            <!--<props> <===> properties = new Properties() 所有的kv都是String类型-->
+            <props>
+                <!--kv都是String 所哟value写在标签体-->
+                <prop key="username">root</prop>
+                <prop key="password">123456</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--util名称空间床架能几何类型的bean 方便别人引用-->
+    <bean class="ljh.bean.Person" id="person04">
+            <property name="maps" ref="myMap"></property>
+    </bean>
+    <!--相当于new LinkedHashMap()但是没有内容 id必须有方便别人引用-->
+    <util:map id="myMap">
+        <!--添加元素 不用再<map>-->
+        <!--<entry>代表一个KV-->
+        <entry key="key01" value="key01"></entry>
+        <entry key="key02" value="18"></entry>
+        <!--value-ref引用外部bean-->
+        <entry key="key03" value-ref="book01"></entry>
+        <!--引用内部bean-->
+        <entry key="key04">
+            <!--内部bean不用写id-->
+            <bean class="ljh.bean.Car">
+                <property name="carName" value="honda"></property>
+            </bean>
+        </entry>
+    </util:map>
+    <!--
+        解释 有四个元素
+        一个list
+        person
+        基本的数据12
+        map
+    -->
+<!--    <util:list>
+        <list></list>
+        <bean class="ljh.bean.Person"></bean>
+        <value>12</value>
+        <ref bean="myMap"></ref>
+    </util:list>-->
+
+    <!--级联属性赋值 级联属性：属性的属性-->
+    <bean id="person05" class="ljh.bean.Person">
+        <!--为car赋值的时候 改变价格-->
+        <property name="car" ref="car01"></property>
+        <!---->
+        <property name="car.price" value="100000"></property>
+    </bean>
+
+    <!--
+    实验6 通过继承实现bean配置信息的使用
+    实验7： 通过abstract属性创建一个模板bean
+    实验8：bean之间的依赖
+    实验9：测试bean的作用域 分别创建单实例和多实例的bean★★★★★★
+    -->
+    <!--abstract="true"说明这个bean不能获得实例 只能被别人继承-->
+    <bean class="ljh.bean.Person" id="person07" abstract="true">
+        <property name="lastName" value="eee"></property>
+        <property name="age" value="18"></property>
+        <property name="gender" value="woman"></property>
+        <property name="email" value="aaa@qq.com"></property>
+    </bean>
+    <!--parent 指定当前bean的配置信息继承于哪一个-->
+    <bean id="person06" class="ljh.bean.Person" parent="person07">
+        <!--更新名字-->
+        <property name="lastName" value="fff"></property>
+    </bean>
+</beans>

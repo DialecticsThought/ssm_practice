@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace名称空间 接口的全类名 相当于告诉mybatis这个配置文件是实现哪个接口的-->
+<mapper namespace="ljh.dao.LockDao">
+<!--public Lock getLockById(Integer id);-->
+    <select id="getLockById"
+            resultMap="lock">
+        <!--给表起别名 on写的是链接条件 where写的是查询条件-->
+        select l.*,k.id kid,k.keyname keyName,k.lockid
+        from t_lock l
+        left join t_key k on k.lockid=l.id
+        where l.id=#{id}
+    </select>
+    <resultMap id="lock" type="ljh.bean.Lock">
+        <!--  private Integer id;
+              private String lockName;
+              private List<Key> keys;
+        -->
+        <!--字段名 id  lockName  kid  keyname  lid lockName-->
+        <!--每个字段名和resultMap属性相对应 也要和Lock类的属性相对应-->
+        <id property="id" column="id"/>
+        <result property="lockName" column="lockName"/>
+        <!--因为返回的是集合属性 用collection标签
+        javaType=""指定这个属性(也就是对象)的类型 association
+        property指定类的某一个属性
+        oftype指定集合里面的元素类型-->
+        <collection property="keys" ofType="ljh.bean.Key">
+            <!--这个标签里面指定集合中这个元素的封装规则-->
+            <!--property写的是key类的属性名 column写的是property属性所对应的表的字段名-->
+            <id property="id" column="kid"/>
+            <result property="keyName" column="keyName"/>
+            <association property="lock" javaType="ljh.bean.Lock">
+                <id property="id" column="id"/>
+            </association>
+        </collection>
+    </resultMap>
+
+    <!-- public Lock getLockByIdInSimpleWay(Integer id);-->
+    <select id="getLockByIdInSimpleWay" resultType="ljh.bean.Lock">
+        select * from t_lock where id = #{id}
+    </select>
+
+    <!--public Lock getLockByStep(Integer id);-->
+    <select id="getLockByStep" resultMap="lockstep">
+        select * from t_lock where id = #{id}
+    </select>
+    <!--collection分布查询-->
+    <resultMap id="lockstep" type="ljh.bean.Lock">
+        <!--  private Integer id;
+      private String lockName;
+      private List<Key> keys;
+        -->
+        <id property="id" column="id"/>
+        <result property="lockName" column="lockName"/>
+        <!--collection指定集合类型的属性封装规则  oftype指定集合里面的元素类型  property指定类的某一个属性
+            因为封装到集合的钥匙是在另一个文件中获取的 KeyDao.xml的getKeyByLockId-->
+        <!--column是要传递给另一个文件的sql语句所需的lockid值 也就是这个表的id字段-->
+        <collection property="keys" select="ljh.dao.KeyDao.getKeyByLockId" column="id">
+        </collection>
+    </resultMap>
+
+
+</mapper>

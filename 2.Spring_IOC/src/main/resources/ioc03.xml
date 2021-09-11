@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--实验13：给予xml的自动装配（自定义类型的自动装配）
+    javabean（基本类型）
+            （自定义类型的属性是一个对象 这个对象在容器中可能存在）
+    -->
+    <bean id="car" class="ljh.bean.Car">
+        <property name="carName" value="宝马"></property>
+        <property name="color" value="black"></property>
+    </bean>
+
+<!--    <bean id="car01" class="ljh.bean.Car">
+        <property name="carName" value="宝马"></property>
+        <property name="color" value="black"></property>
+    </bean>-->
+    <!--为person里面的自定义类型的属性赋值-->
+<!--    <bean id="person01" class="ljh.bean.Person">
+        &lt;!&ndash;手动赋值&ndash;&gt;
+        <property name="car" ref="car"></property>
+    </bean>-->
+    <!--自动装配 只给自定义的类型有效 如果是基本类型不能赋值★★★★★★
+    autowire="default/no"表示手动装配
+    自动装配
+    autowire="byName" 以属性名作为id去容器中找到一个组件，给他赋值 找不到就null
+    private Car car; 就以car为id
+    autowire="byType" 以属性的类型作为查找一句取容器中找到这个组件   <==> ioc.getBean(Car.class)
+        如果容器中有多个该类型的组件 就会报错
+        找不到就null
+    autowire="constructor" 按照构造器进行赋值
+    构造函数public Person(Car car)
+        1) 先按照有参构造器的参数的类型进行装配（成功就赋值） 没有就直接为组件装配null即可
+        2）如何按照类型找到了多个：
+                    参数的名字作为id继续匹配 也就是形参是car 找到car为id的bean 找不到是null
+        3）不会报错
+    -->
+    <bean id="person01" class="ljh.bean.Person" autowire="byName">
+        <property name="books" ref="book02"/>
+        <!--autowire="byName"取代了虾米扥操作-->
+        <!--<property name="car" ref="car"/>-->
+    </bean>
+    <!--List<Book> books:容器可以把容器中所有book封装list赋值给这个属性-->
+    <bean id="book01" class="ljh.bean.Book">
+        <property name="bookName" value="aaa"></property>
+    </bean>
+    <bean id="book02" class="ljh.bean.Book">
+        <property name="bookName" value="aaa"></property>
+    </bean>
+    <bean id="book03" class="ljh.bean.Book">
+        <property name="bookName" value="aaa"></property>
+    </bean>
+    <!--
+        实验14：
+            在spEl中使用字面量spring expression language
+            引用其他bean
+            引用其他bean的某个属性值
+            调用非静态方法调用静态方法
+            使用运算符
+    -->
+    <bean id="person02" class="ljh.bean.Person">
+        <!--字面量 ${} #{}-->
+        <!--使用运算符-->
+        <property name="salary" value="#{20000*12}"></property>
+        <!--把book01的书名当作名字-->
+        <property name="lastName" value="#{book01.bookName}"></property>
+        <!--引用其他bean 相当于ref-->
+        <property name="car" value="#{car}"></property>
+        <!--调用静态方法
+            UUID.randomUUID().toString()
+                #{T(全类名).静态方法名(参数1,参数2,..)}
+            调用非静态方法
+                对象名.方法名
+        -->
+        <property name="email" value="#{T(java.util.UUID).randomUUID().toString()}"></property>
+        <property name="gender" value="#{book01.getBookName()}"></property>
+    </bean>
+</beans>

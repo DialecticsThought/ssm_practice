@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>hello world</h1>
+<!--超链接写的绝对路径就是浏览器解析的  / 表示从localhost:8080访问 要添加一个上下文路径
+也就是配置Tomcat的application context-->
+<!--@{/hello/success}表示如果大括号里面是绝对路径 自动添加上下文路径-->
+<!--实现了http://localhost:8080/springMVC_demo03/testRequestByServletAPI 访问success.html-->
+<!--<a th:href="@{/testRequestByServletAPI}">通过ServletAPI向request域共享数据</a>
+<br/>
+<a th:href="@{/testModelAndView}">通过ModelAndView向request域共享数据</a>
+<br/>
+<a th:href="@{/testModel}">通过Model向request域共享数据</a>
+<br/>
+<a th:href="@{/testMap}">通过Map向request域共享数据</a>
+<br/>
+<a th:href="@{/testModelMap}">通过ModelMap向request域共享数据</a>
+<br/>
+<a th:href="@{/testSession}">通过HttpSession向session域共享数据</a>
+<br/>
+<a th:href="@{/testApplication}">通过HttpSession向Application域共享数据</a>-->
+<!--<br/>
+<a th:href="@{/employee}">查看员工信息</a>-->
+
+<!--<form th:action="@{/testRequestBody}" method="post">
+    <input type="text" name="username"><br/>
+    <input type="text" name="password"><br/>
+    <input type="submit" value="提交">
+</form>
+<form th:action="@{/testRequestEntity}" method="post">
+    <input type="text" name="username"><br/>
+    <input type="text" name="password"><br/>
+    <input type="submit" value="提交">
+</form>
+<br/>
+<a th:href="@{/testResponse}">通过servletAPI的response对象响应浏览器数据</a>
+<br/>
+<a th:href="@{/testResponseBody}">通过ResponseBody响应浏览器数据</a>
+<br/>
+<a th:href="@{/testResponseUser}">通过ResponseBody响应浏览器User对象</a>
+<br/>
+<div id="app">
+    <a @click="testAxios" th:href="@{/testAxios}">springMVC处理ajax</a>
+</div>
+<script type="text/javascript" th:src="@{/webjars/jquery/3.6.0/src/jquery.js}"></script>
+<script th:src="@{https://unpkg.com/axios/dist/axios.min.js}"></script>
+<script th:src="@{https://cdn.jsdelivr.net/npm/vue/dist/vue.js}"></script>
+<script type="text/javascript">
+    new vue({
+        el:"#app",
+        method:{
+            testAxios:function (event){
+                axios([
+                    method : "post",
+                    url:event.target.href,
+                    //传到server端的数据
+                    param:{
+                    username:"admin",
+                    password:"123456"
+                }
+                //then是ajax处理成功后要执行的函数
+                //response表示服务器响应的数据
+                ]).then(function (response){
+                    alert(response.data);
+                });
+                //取消超链接的默认行为
+                event.preventDefault()
+            }
+        }
+    })
+</script>-->
+<a th:href="@{/testInterceptor}">测试拦截器</a>
+<a th:href="@{/testExceptionHandler}">测试异常处理</a>
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--实验10：创建带有生命周期方法的bean
+    生命周期：bean的创建到销毁的过程
+        ioc容器注册的bean
+            单例 容器启动的时候就会创建好 容器关闭也会销毁创建的bean
+            多例 获取getBean的时候才会创建
+            自定义生命周期的方法 spring在创建/销毁的时候会调用指定的方法
+            destroy-method/init-method写在要创建的类里面
+            The method must have no arguments, but may throw any exception
+    -->
+    <bean id="book01" class="ljh.bean.Book" destroy-method="myDestory"  init-method="myInitalize" ></bean>
+
+    <!--实验11：测试bean的后置处理器
+        spring有一个接口：后置处理器 可以在bean的初始化前后调用方法
+        BeanPostProcessor
+    -->
+    <bean  id="mybeanPostProcessor" class="ljh.bean.MybeanPostProcessor"></bean>
+
+    <bean id="car01" class="ljh.bean.Car"></bean>
+</beans>
